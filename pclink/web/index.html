@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6feb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PC Link">
+<title>PC Link</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 로그인 -->
+<section id="login" class="login hidden">
+  <img src="icon.svg" alt="" class="login-logo">
+  <h1>PC Link</h1>
+  <p class="muted">노트북에서 실행한 PC Link 창의 <b>접속 코드</b>를 입력하거나<br>QR 코드를 휴대폰 카메라로 찍으세요.</p>
+  <form id="loginForm">
+    <input id="tokenInput" type="password" autocomplete="current-password" placeholder="접속 코드" required>
+    <button class="btn primary" type="submit">연결</button>
+  </form>
+  <p id="loginErr" class="err"></p>
+</section>
+
+<!-- 메인 -->
+<main id="main" class="hidden">
+  <!-- 파일 -->
+  <section id="tab-files" class="tab">
+    <header class="bar">
+      <button class="icon-btn" id="fsUp" title="상위 폴더" aria-label="상위 폴더">⬆</button>
+      <div class="crumbs" id="crumbs"></div>
+      <button class="icon-btn" id="fsSearchBtn" aria-label="검색">🔍</button>
+      <button class="icon-btn" id="fsMenuBtn" aria-label="메뉴">⋮</button>
+    </header>
+    <div id="fsSearchRow" class="row hidden">
+      <input id="fsSearchInput" type="search" placeholder="현재 폴더 아래에서 이름 검색">
+      <button class="btn" id="fsSearchGo">검색</button>
+    </div>
+    <div id="pasteBar" class="action-bar hidden">
+      <span id="pasteInfo"></span>
+      <button class="btn primary" id="pasteHere">여기에 붙여넣기</button>
+      <button class="btn" id="pasteCancel">취소</button>
+    </div>
+    <div id="selectBar" class="action-bar hidden">
+      <span id="selectInfo"></span>
+      <button class="btn" data-sel="copy">복사</button>
+      <button class="btn" data-sel="move">이동</button>
+      <button class="btn danger" data-sel="delete">삭제</button>
+      <button class="btn" data-sel="cancel">✕</button>
+    </div>
+    <ul id="fileList" class="list"></ul>
+    <input type="file" id="uploadInput" multiple hidden>
+    <div id="uploadProgress" class="progress hidden"><div></div></div>
+  </section>
+
+  <!-- 프로그램 / 프로세스 -->
+  <section id="tab-apps" class="tab hidden">
+    <header class="bar">
+      <div class="seg" id="appsSeg">
+        <button class="on" data-v="apps">프로그램 실행</button>
+        <button data-v="procs">실행 중</button>
+      </div>
+      <button class="icon-btn" id="appsRefresh" aria-label="새로고침">⟳</button>
+    </header>
+    <div class="row"><input id="appsFilter" type="search" placeholder="이름으로 찾기"></div>
+    <ul id="appsList" class="list"></ul>
+  </section>
+
+  <!-- 원격 화면 -->
+  <section id="tab-screen" class="tab hidden">
+    <header class="bar">
+      <div class="seg" id="mouseMode">
+        <button class="on" data-v="click">클릭</button>
+        <button data-v="double">더블</button>
+        <button data-v="right">우클릭</button>
+        <button data-v="move">이동</button>
+      </div>
+      <button class="icon-btn" id="screenLive" aria-label="실시간">▶</button>
+    </header>
+    <div class="screen-wrap"><img id="screenImg" alt="PC 화면"><button class="screen-ph" id="screenPh">화면을 불러오려면 누르세요</button></div>
+    <div class="row">
+      <button class="btn" data-scroll="5">▲ 스크롤</button>
+      <button class="btn" data-scroll="-5">▼ 스크롤</button>
+      <button class="btn" id="screenRefresh">새로고침</button>
+    </div>
+    <form class="row" id="typeForm">
+      <input id="typeInput" placeholder="PC에 입력할 글자 (한글 가능)">
+      <button class="btn primary">입력</button>
+    </form>
+    <div class="keys" id="keys">
+      <button data-k="enter">Enter</button><button data-k="backspace">⌫</button><button data-k="esc">Esc</button><button data-k="tab">Tab</button>
+      <button data-k="up">↑</button><button data-k="down">↓</button><button data-k="left">←</button><button data-k="right">→</button>
+      <button data-k="ctrl+c">복사</button><button data-k="ctrl+v">붙여넣기</button><button data-k="ctrl+z">실행취소</button><button data-k="ctrl+s">저장</button>
+      <button data-k="alt+tab">창전환</button><button data-k="alt+f4">창닫기</button><button data-k="win">시작</button><button data-k="win+d">바탕화면</button>
+      <button data-k="volumedown">🔉</button><button data-k="volumeup">🔊</button><button data-k="volumemute">🔇</button><button data-k="playpause">⏯</button>
+    </div>
+  </section>
+
+  <!-- 시스템 -->
+  <section id="tab-system" class="tab hidden">
+    <header class="bar"><h2 id="sysHost">시스템</h2><button class="icon-btn" id="sysRefresh" aria-label="새로고침">⟳</button></header>
+    <div id="sysCards" class="cards"></div>
+
+    <h3>클립보드 주고받기</h3>
+    <textarea id="clipText" rows="3" placeholder="PC로 보낼 텍스트"></textarea>
+    <div class="row">
+      <button class="btn primary" id="clipSend">PC로 보내기</button>
+      <button class="btn" id="clipGet">PC 클립보드 가져오기</button>
+    </div>
+
+    <div id="powerBox">
+      <h3>전원</h3>
+      <div class="grid4">
+        <button class="btn" data-power="lock">화면 잠금</button>
+        <button class="btn" data-power="sleep">절전</button>
+        <button class="btn danger" data-power="restart">다시 시작</button>
+        <button class="btn danger" data-power="shutdown">시스템 종료</button>
+      </div>
+      <button class="btn small" data-power="cancel">예약된 종료 취소</button>
+    </div>
+
+    <div id="termBox" class="hidden">
+      <h3>터미널 명령</h3>
+      <form class="row" id="termForm">
+        <input id="termInput" placeholder="예: dir 또는 ls -al" autocapitalize="off" autocorrect="off">
+        <button class="btn primary">실행</button>
+      </form>
+      <pre id="termOut" class="term"></pre>
+    </div>
+
+    <button class="btn wide" id="logoutBtn">이 휴대폰 로그아웃</button>
+  </section>
+
+  <nav class="tabs">
+    <button data-tab="files" class="on"><span>📁</span>파일</button>
+    <button data-tab="apps"><span>🧩</span>프로그램</button>
+    <button data-tab="screen"><span>🖥</span>화면</button>
+    <button data-tab="system"><span>⚙</span>시스템</button>
+  </nav>
+</main>
+
+<!-- 하단 시트 / 모달 -->
+<div id="sheet" class="sheet hidden" role="dialog" aria-modal="true">
+  <div class="sheet-body">
+    <div class="sheet-title" id="sheetTitle"></div>
+    <div id="sheetContent"></div>
+    <button class="btn wide" id="sheetClose">닫기</button>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
