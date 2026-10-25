@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "wsof11",
+  "description": "wsof11 저장소에 포함한 Claude Code 플러그인 마켓플레이스",
+  "owner": { "name": "4433855j-beep" },
+  "plugins": [
+    {
+      "name": "lawfirm",
+      "source": "./plugins/lawfirm",
+      "description": "한국 법률 업무 플러그인(원본: github.com/hjsh200219/lawfirm, v0.8.2) — 법령·판례 검색, 계약·NDA 검토, 내용증명·고소장 등 문서 초안, 법정기간·소송비용 계산",
+      "version": "0.8.2",
+      "category": "legal"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "extraKnownMarketplaces": {
+    "wsof11": {
+      "source": {
+        "source": "github",
+        "repo": "4433855j-beep/wsof11",
+        "ref": "claude/hopeful-maxwell-cx39bq"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "lawfirm@wsof11": true
+  }
+}
