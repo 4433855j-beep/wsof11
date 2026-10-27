@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "korean-dart": {
+      "command": "npx",
+      "args": ["-y", "korean-dart-mcp"],
+      "env": {
+        "DART_API_KEY": "${DART_API_KEY}"
+      }
+    }
+  }
+}
