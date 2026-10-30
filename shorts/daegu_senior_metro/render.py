@@ -221,11 +221,72 @@ def write_texts(out_dir: str):
         f.write("\n".join(s[3] for s in SCENES) + "\n")
 
 
+IMAGE_EXT = (".jpg", ".jpeg", ".png", ".webp")
+VIDEO_EXT = (".mp4", ".mov", ".m4v", ".webm")
+
+
+def list_backgrounds(folder: str) -> list[str]:
+    """배경 폴더의 사진·영상을 파일명 순으로 돌려준다(01_, 02_ ... 로 장면 순서 지정)."""
+    files = sorted(
+        os.path.join(folder, n) for n in os.listdir(folder)
+        if n.lower().endswith(IMAGE_EXT + VIDEO_EXT)
+    )
+    if not files:
+        raise SystemExit(f"배경 폴더에 사진·영상이 없습니다: {folder}")
+    return files
+
+
+def cover(img: Image.Image, scale: float = 1.0) -> Image.Image:
+    """화면(1080x1920)을 꽉 채우도록 확대 후 가운데를 잘라낸다."""
+    ratio = max(W / img.width, H / img.height) * scale
+    img = img.resize((max(W, round(img.width * ratio)), max(H, round(img.height * ratio))), Image.LANCZOS)
+    left, top = (img.width - W) // 2, (img.height - H) // 2
+    return img.crop((left, top, left + W, top + H))
+
+
+def background_frames(path: str, n: int):
+    """장면 길이(n프레임)만큼 배경 프레임을 만든다. 사진은 천천히 확대, 영상은 반복 재생."""
+    if path.lower().endswith(IMAGE_EXT):
+        src = Image.open(path).convert("RGB")
+        base = cover(src, 1.12)  # 확대 여유분을 한 번만 리샘플링
+        for f in range(n):
+            z = 1.12 - 0.12 * (1 - f / max(1, n - 1))  # 1.0 -> 1.12 배 확대 효과
+            cw, ch = round(W * 1.12 / z), round(H * 1.12 / z)
+            x, y = (base.width - cw) // 2, (base.height - ch) // 2
+            yield base.crop((x, y, x + cw, y + ch)).resize((W, H), Image.BILINEAR)
+        return
+    vf = f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS}"
+    proc = subprocess.Popen(
+        ["ffmpeg", "-loglevel", "error", "-stream_loop", "-1", "-i", path, "-an",
+         "-vf", vf, "-frames:v", str(n), "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+        stdout=subprocess.PIPE,
+    )
+    size = W * H * 3
+    for _ in range(n):
+        buf = proc.stdout.read(size)
+        if len(buf) < size:
+            break
+        yield Image.frombytes("RGB", (W, H), buf)
+    proc.stdout.close()
+    proc.wait()
+
+
+def readability_overlay() -> Image.Image:
+    """실사 배경 위 글자가 잘 보이도록 전체를 살짝 어둡게 하고 위·아래를 더 어둡게 한다."""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for y in range(H):
+        edge = max(0.0, 1 - y / 420, (y - (H - 520)) / 520)
+        d.line([(0, y), (W, y)], fill=(0, 0, 0, int(60 + 120 * min(1.0, edge))))
+    return img
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--font-regular", required=True)
     ap.add_argument("--font-bold", required=True)
     ap.add_argument("--out", default=os.path.join(HERE, "daegu_senior_metro_shorts.mp4"))
+    ap.add_argument("--backgrounds", help="실사 배경 사진·영상 폴더 (없으면 그래픽 배경)")
     args = ap.parse_args()
 
     for p in (args.font_regular, args.font_bold):
@@ -251,6 +312,8 @@ def main():
         rd.rectangle([px, 1630, px + 36, H], fill=(150, 156, 172))
     rd.rectangle([0, 1760, W, H], fill=(20, 20, 36))
     tr = train(3 * 264)
+    bg_files = list_backgrounds(args.backgrounds) if args.backgrounds else []
+    overlay = readability_overlay() if bg_files else None
     hdr = header(fonts)
     cards, caps = [], []
     for s in SCENES:
@@ -259,6 +322,7 @@ def main():
         caps.append(caption(s[3], fonts, bottom + 70))
 
     total = sum(s[0] for s in SCENES)
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     cmd = [
         "ffmpeg", "-y", "-loglevel", "error",
         "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
@@ -274,16 +338,23 @@ def main():
     frame_no = 0
     for idx, (dur, *_rest) in enumerate(SCENES):
         n = dur * FPS
+        bg_iter = background_frames(bg_files[idx % len(bg_files)], n) if bg_files else None
+        last_bg = None
         for f in range(n):
             t = frame_no / FPS
-            frame = sky.copy().convert("RGBA")
-            for layer, speed in ((far, 12), (near, 30)):
-                off = int(t * speed) % layer.width
-                frame.alpha_composite(layer, (-off, 0))
-                frame.alpha_composite(layer, (layer.width - off, 0))
-            frame.alpha_composite(rail)
-            tx = int((t * 260) % (W + tr.width)) - tr.width
-            frame.alpha_composite(tr, (tx, 1600 - tr.height + 4))
+            if bg_iter is not None:
+                last_bg = next(bg_iter, last_bg)
+                frame = last_bg.convert("RGBA")
+                frame.alpha_composite(overlay)
+            else:
+                frame = sky.copy().convert("RGBA")
+                for layer, speed in ((far, 12), (near, 30)):
+                    off = int(t * speed) % layer.width
+                    frame.alpha_composite(layer, (-off, 0))
+                    frame.alpha_composite(layer, (layer.width - off, 0))
+                frame.alpha_composite(rail)
+                tx = int((t * 260) % (W + tr.width)) - tr.width
+                frame.alpha_composite(tr, (tx, 1600 - tr.height + 4))
             frame.alpha_composite(hdr)
             # 카드: 0.4초 페이드인 + 살짝 올라오기, 장면 끝 0.3초 페이드아웃
             fade = min(1.0, f / (0.4 * FPS), (n - f) / (0.3 * FPS))

@@ -21,6 +21,29 @@ pip install pillow fonttools
 python render.py --font-regular C:\Windows\Fonts\malgun.ttf --font-bold C:\Windows\Fonts\malgunbd.ttf
 ```
 
+## 실사 배경(한국·한국인 사진·영상)으로 만들기
+
+1. 폴더 하나에 사진(jpg·png) 또는 영상(mp4·mov)을 **장면 순서대로 파일명 앞에 번호**를 붙여 넣습니다.
+2. 실행하면 사진은 천천히 확대되고, 영상은 장면 길이만큼 반복 재생되며, 글자가 잘 보이도록 배경을 살짝 어둡게 합니다.
+
+```bash
+python render.py --font-regular C:\Windows\Fonts\malgun.ttf --font-bold C:\Windows\Fonts\malgunbd.ttf --backgrounds 배경폴더
+```
+
+| 파일명 | 장면 | 추천 배경 (검색어) |
+|---|---|---|
+| `01_` | 도입 | 대구 3호선 하늘열차 고가 구간 · `Daegu monorail` |
+| `02_` | 2023년 7월 시작 | 시내버스에 오르는 어르신 · `Korean elderly bus` |
+| `03_` | 연령 단계적 조정 | 도시철도 개찰구·교통카드 · `Korea subway gate` |
+| `04_` | 2026년 지금은? | 승강장의 어르신 · `Korean senior subway` |
+| `05_` | 성과 | 대구 도심·동성로 · `Daegu city` |
+| `06_` | 과제 | 도시철도 차량기지·열차 · `Daegu subway` |
+| `07_` | 향후 방향 | 대구시청 · `Daegu city hall` |
+| `08_` | 마무리 | 대구 야경 · `Daegu skyline night` |
+
+- 사진 받기: `python -m moneyprinter_korea --preset daegu-metro` (한국관광공사), Pexels·Pixabay에서 위 영문 검색어로 검색
+- **인물이 나오는 사진·영상**: 공공 홍보물에는 초상권 동의가 확인된 자료(스톡 사이트의 모델 동의 자료, 대구시 보유 사진)만 쓰고, 일반 시민이 식별되면 모자이크하세요.
+
 ## 내용 근거 (게시 전 재확인)
 
 - 「대구광역시 어르신 무임교통 지원에 관한 조례」(2024.10.30. 개정) — 연도별 연령표는 부칙 원문 대조 필요
