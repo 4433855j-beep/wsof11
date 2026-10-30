@@ -77,3 +77,16 @@ def test_load_key_from_config(tmp_path, monkeypatch):
 def test_to_video_terms():
     assert "Seoul city" in to_video_terms("도시 풍경")
     assert to_video_terms("반도체") == ["Korea 반도체"]
+
+
+def test_daegu_metro_preset(monkeypatch, tmp_path):
+    from moneyprinter_korea import __main__ as cli
+    from moneyprinter_korea.keywords import PRESETS
+
+    searched = []
+    monkeypatch.setenv("KTO_PHOTO_API_KEY", "k")
+    monkeypatch.setattr(cli.kto_photo, "search", lambda key, kw, count: searched.append(kw) or [])
+    monkeypatch.setattr(cli.kto_photo, "download", lambda photos, out: [])
+    cli.main(["--preset", "daegu-metro", "--out", str(tmp_path)])
+    assert searched == PRESETS["daegu-metro"]["photo_keywords"]
+    assert "Daegu monorail" in to_video_terms("대구 도시철도")
