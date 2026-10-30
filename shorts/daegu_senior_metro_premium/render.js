@@ -10,7 +10,10 @@ const args = Object.fromEntries(
   process.argv.slice(2).reduce((acc, v, i, arr) => (v.startsWith("--") ? acc.concat([[v.slice(2), arr[i + 1]]]) : acc), [])
 );
 const FPS = Number(args.fps || 30);
-const TOTAL = 55;
+const TIMELINE = args.timeline || path.join(__dirname, "timeline.json");
+const tl = fs.existsSync(TIMELINE) ? JSON.parse(fs.readFileSync(TIMELINE, "utf8")) : null;
+const TOTAL = tl ? tl.total : 55;
+const NARRATION = args.narration; // narrate.py 로 만든 한국어 음성(wav)
 const OUT = path.resolve(args.out || path.join(__dirname, "daegu_senior_metro_premium.mp4"));
 const FONT_DIR = args["font-dir"];
 if (!FONT_DIR) throw new Error("--font-dir 에 Pretendard OTF 폴더를 지정하세요");
@@ -19,6 +22,18 @@ const WEIGHTS = { Regular: 400, Medium: 500, SemiBold: 600, Bold: 700, ExtraBold
 const fontCss = Object.entries(WEIGHTS)
   .map(([name, w]) => `@font-face{font-family:"Pretendard";font-weight:${w};src:url("${pathToFileURL(path.join(FONT_DIR, `Pretendard-${name}.otf`)).href}")}`)
   .join("\n");
+
+function audio(total) {
+  // 배경음악만, 또는 한국어 내레이션 + 배경음악(작게) 혼합
+  const m = music(total);
+  if (!NARRATION) return m;
+  return [
+    m[0], m[1], m[2], m[3],
+    "-i", path.resolve(NARRATION),
+    "-filter_complex", `[1:a]${m[5]},volume=0.45[m];[2:a]aresample=44100,volume=1.0[v];[m][v]amix=inputs=2:normalize=0:duration=first[a]`,
+    "-map", "0:v", "-map", "[a]",
+  ];
+}
 
 function music(total) {
   // 잔잔한 패드: 화음(Am-F-C-G)을 7초마다 바꾸고 잔향을 더한다.
@@ -40,6 +55,7 @@ function music(total) {
   await page.addStyleTag({ content: fontCss });
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => Promise.all([400, 500, 600, 700, 800].map((w) => document.fonts.load(`${w} 40px Pretendard`, "대구"))));
+  if (tl) await page.evaluate((x) => window.applyTimeline(x), tl);
 
   if (args.still) {
     for (const s of args.still.split(",")) {
@@ -54,7 +70,7 @@ function music(total) {
   const ff = spawn("ffmpeg", [
     "-y", "-loglevel", "error",
     "-f", "image2pipe", "-framerate", String(FPS), "-c:v", "mjpeg", "-i", "-",
-    ...music(TOTAL),
+    ...audio(TOTAL),
     "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p",
     "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", OUT,
   ], { stdio: ["pipe", "inherit", "inherit"] });

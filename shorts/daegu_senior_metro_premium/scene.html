@@ -331,7 +331,7 @@
   <!-- 자막 -->
   <div class="cap" data-start="0" data-end="5">대구 어르신, 도시철도 무료는 몇 세부터일까요?</div>
   <div class="cap" data-start="5" data-end="11">대구시는 2023년 7월, 광역자치단체 최초로 75세 이상 시내버스 무임을 시작했습니다.</div>
-  <div class="cap" data-start="11" data-end="20">도시철도는 65세에서 매년 한 살씩 올리고, 버스는 75세에서 한 살씩 낮춰 2028년 70세로 맞추는 구조입니다.</div>
+  <div class="cap" data-start="11" data-end="20">도시철도는 65세에서 매년 한 살씩 올리고, 버스는 75세에서 한 살씩 낮춰, 2028년에는 70세로 맞추는 구조입니다.</div>
   <div class="cap" data-start="20" data-end="27">2026년에는 68세부터 도시철도가, 72세부터는 시내버스까지 무료입니다.</div>
   <div class="cap" data-start="27" data-end="34">대구정책연구원 분석 결과 비용 대비 편익은 1.53, 이용자 만족도는 98.5%였습니다.</div>
   <div class="cap" data-start="34" data-end="40">다만 도시철도 무임 손실은 최근 5년간 약 2,600억 원으로, 재정 부담이 과제입니다.</div>
@@ -340,7 +340,7 @@
 </div>
 
 <script>
-const TOTAL = 55;
+let TOTAL = 55;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const outCubic = p => 1 - Math.pow(1 - p, 3);
 const outBack = p => { const c = 1.6; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
@@ -400,6 +400,16 @@ function fmt(v, el) {
   const s = v.toFixed(dec);
   return el.dataset.sep ? Number(s).toLocaleString("ko-KR") : s;
 }
+
+// narrate.py 가 만든 timeline.json(내레이션 길이에 맞춘 장면 시각)을 적용한다.
+window.applyTimeline = function (tl) {
+  TOTAL = tl.total;
+  scenes.forEach((sc, i) => { sc.dataset.start = tl.scenes[i][0]; sc.dataset.end = tl.scenes[i][1]; });
+  caps.forEach((c, i) => {
+    c.dataset.start = tl.scenes[i][0]; c.dataset.end = tl.scenes[i][1];
+    if (tl.captions) c.textContent = tl.captions[i];
+  });
+};
 
 window.renderAt = function (t) {
   document.querySelector("#progress b").style.width = `${(t / TOTAL) * 100}%`;
