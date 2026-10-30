@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>대구 어르신 무임교통 쇼츠</title>
+<style>
+  :root {
+    --ink: #f5f1e8;
+    --muted: rgba(245, 241, 232, .62);
+    --gold: #d8b46a;
+    --gold2: #f3dfa8;
+    --blue: #6ea8ff;
+    --teal: #5fd3c0;
+    --rose: #ff8a7a;
+    --glass: rgba(255, 255, 255, .06);
+    --line: rgba(255, 255, 255, .14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #050914; }
+  body { font-family: "Pretendard", sans-serif; color: var(--ink); letter-spacing: -0.02em; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: radial-gradient(120% 80% at 50% 0%, #142451 0%, #0a1330 45%, #050914 100%); }
+
+  /* 배경 오로라 */
+  .blob { position: absolute; border-radius: 50%; filter: blur(110px); opacity: .55; }
+  #b1 { width: 760px; height: 760px; background: #2b4fd6; left: -220px; top: 120px; }
+  #b2 { width: 680px; height: 680px; background: #b8893a; right: -240px; top: 620px; opacity: .38; }
+  #b3 { width: 620px; height: 620px; background: #1e8f86; left: 160px; top: 1120px; opacity: .30; }
+  #grain { position: absolute; inset: 0; opacity: .07; mix-blend-mode: overlay; }
+
+  /* 상단 */
+  #header { position: absolute; top: 120px; left: 80px; right: 80px; display: flex;
+    justify-content: space-between; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 18px; font-weight: 700; font-size: 34px; }
+  .brand i { width: 14px; height: 14px; border-radius: 50%; background: var(--gold);
+    box-shadow: 0 0 24px var(--gold); }
+  .date { font-size: 28px; color: var(--muted); font-weight: 500; }
+  #progress { position: absolute; top: 200px; left: 80px; right: 80px; height: 3px;
+    background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+  #progress b { display: block; height: 100%; width: 0;
+    background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+
+  /* 장면 */
+  .scene { position: absolute; left: 80px; right: 80px; top: 300px; height: 1060px;
+    opacity: 0; will-change: opacity, transform, filter; }
+  .a { opacity: 0; will-change: opacity, transform, filter; }
+  .eyebrow { font-size: 30px; font-weight: 600; color: var(--gold); letter-spacing: .18em; }
+  .h1 { font-size: 112px; font-weight: 800; line-height: 1.12; letter-spacing: -0.04em; }
+  .h2 { font-size: 84px; font-weight: 800; line-height: 1.15; letter-spacing: -0.035em; }
+  .lead { font-size: 46px; font-weight: 600; color: var(--muted); line-height: 1.4; }
+  .goldtxt { background: linear-gradient(100deg, var(--gold) 0%, var(--gold2) 50%, var(--gold) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rule { height: 4px; width: 0; background: linear-gradient(90deg, var(--gold), transparent);
+    border-radius: 4px; }
+  .glass { background: var(--glass); border: 1px solid var(--line); border-radius: 44px;
+    backdrop-filter: blur(18px); box-shadow: 0 30px 80px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.08); }
+  .pill { display: inline-flex; align-items: center; gap: 14px; padding: 18px 34px;
+    border-radius: 999px; font-size: 38px; font-weight: 700;
+    background: rgba(216,180,106,.14); border: 1px solid rgba(216,180,106,.45); color: var(--gold2); }
+  .small { font-size: 30px; color: var(--muted); font-weight: 500; line-height: 1.5; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* 자막 */
+  .cap { position: absolute; left: 70px; right: 70px; top: 1385px; padding: 30px 40px;
+    border-radius: 32px; background: rgba(5, 9, 20, .62); border: 1px solid rgba(255,255,255,.10);
+    font-size: 44px; font-weight: 600; line-height: 1.42; text-align: center; opacity: 0;
+    word-break: keep-all; }
+
+  /* 하단 모노레일 */
+  #city { position: absolute; left: 0; bottom: 0; width: 1080px; height: 360px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="blob" id="b1"></div><div class="blob" id="b2"></div><div class="blob" id="b3"></div>
+
+  <svg id="city" viewBox="0 0 1080 360" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#050914" stop-opacity="0"/>
+        <stop offset="1" stop-color="#050914" stop-opacity="1"/>
+      </linearGradient>
+      <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#d8b46a" stop-opacity="0"/>
+        <stop offset=".5" stop-color="#d8b46a" stop-opacity=".9"/>
+        <stop offset="1" stop-color="#d8b46a" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="glow"><stop offset="0" stop-color="#fff3cf" stop-opacity=".9"/>
+        <stop offset="1" stop-color="#fff3cf" stop-opacity="0"/></radialGradient>
+    </defs>
+    <g id="farCity" fill="#101b3f"></g>
+    <g id="nearCity" fill="#0b1431"></g>
+    <rect x="0" y="210" width="1080" height="14" fill="#1b2a55"/>
+    <rect x="0" y="210" width="1080" height="2" fill="url(#beam)"/>
+    <g id="pillars" fill="#15224a"></g>
+    <g id="train">
+      <ellipse cx="560" cy="186" rx="140" ry="40" fill="url(#glow)" opacity=".5"/>
+      <rect x="0" y="160" width="520" height="50" rx="24" fill="#e9edf5"/>
+      <rect x="0" y="196" width="520" height="6" fill="#d8b46a"/>
+      <g id="windows" fill="#1a2b57"></g>
+    </g>
+    <rect x="0" y="0" width="1080" height="360" fill="url(#fade)" opacity=".55"/>
+  </svg>
+
+  <svg id="grain" width="1080" height="1920"><filter id="n"><feTurbulence type="fractalNoise"
+    baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#n)"/></svg>
+
+  <div id="header">
+    <div class="brand"><i></i>대구 어르신 무임교통</div>
+    <div class="date">2026. 10. 기준</div>
+  </div>
+  <div id="progress"><b></b></div>
+
+  <!-- 1. 도입 -->
+  <section class="scene" data-start="0" data-end="5">
+    <div class="eyebrow a" data-at=".2" data-fx="up">DAEGU · SENIOR TRANSIT</div>
+    <div style="height:40px"></div>
+    <div class="h1 a" data-at=".45" data-fx="blur">대구 어르신</div>
+    <div class="h1 a goldtxt" data-at=".75" data-fx="blur">도시철도<br>무임승차</div>
+    <div style="height:46px"></div>
+    <div class="rule a" data-at="1.2" data-fx="grow" data-w="520"></div>
+    <div style="height:46px"></div>
+    <div class="lead a" data-at="1.5" data-fx="up">몇 세부터 무료일까요?<br>2026년 기준으로 정리했습니다.</div>
+  </section>
+
+  <!-- 2. 2023년 7월 시작 -->
+  <section class="scene" data-start="5" data-end="11">
+    <div class="eyebrow a" data-at=".2" data-fx="up">01 · 시작</div>
+    <div style="height:30px"></div>
+    <div class="a" data-at=".4" data-fx="scale" style="font-size:230px;font-weight:800;letter-spacing:-0.05em;line-height:1">
+      <span class="goldtxt">2023.7</span></div>
+    <div style="height:60px"></div>
+    <div class="glass a" data-at="1.0" data-fx="up" style="padding:56px 60px">
+      <div class="h2" style="font-size:72px">시내버스<br><span class="goldtxt">75세 이상</span> 무임</div>
+      <div style="height:34px"></div>
+      <div class="pill a" data-at="1.6" data-fx="scale">광역자치단체 최초</div>
+    </div>
+    <div style="height:44px"></div>
+    <div class="lead a" data-at="2.2" data-fx="up" style="font-size:40px">도시철도는 당시 65세 기준 유지</div>
+  </section>
+
+  <!-- 3. 단계적 조정 차트 -->
+  <section class="scene" data-start="11" data-end="20">
+    <div class="eyebrow a" data-at=".2" data-fx="up">02 · 단계적 조정</div>
+    <div style="height:24px"></div>
+    <div class="h2 a" data-at=".4" data-fx="blur">2028년, <span class="goldtxt">70세로 통합</span></div>
+    <div style="height:40px"></div>
+    <div class="glass a" data-at=".8" data-fx="up" style="padding:40px 30px 30px">
+      <svg viewBox="0 0 900 640" width="860" height="612">
+        <rect class="a" data-at="1.0" data-fx="fade" x="462" y="20" width="124" height="570" rx="20"
+          fill="rgba(216,180,106,.12)" stroke="rgba(216,180,106,.4)"/>
+        <g font-size="28" font-weight="600" fill="rgba(245,241,232,.55)" text-anchor="middle">
+          <text x="80" y="628">2023</text><text x="228" y="628">2024</text><text x="376" y="628">2025</text>
+          <text x="524" y="628" fill="#f3dfa8">2026</text><text x="672" y="628">2027</text><text x="820" y="628">2028</text>
+        </g>
+        <!-- 도시철도: 65→70 -->
+        <path class="draw" data-at="1.2" data-dur="1.6" pathLength="1" d="M80 535 L228 490 L376 445 L524 400"
+          fill="none" stroke="#6ea8ff" stroke-width="7" stroke-linecap="round"/>
+        <path class="a" data-at="2.8" data-fx="fade" d="M524 400 L672 355 L820 310" fill="none"
+          stroke="#6ea8ff" stroke-width="6" stroke-dasharray="4 16" stroke-linecap="round"/>
+        <!-- 시내버스: 75→70 -->
+        <path class="draw" data-at="1.6" data-dur="1.6" pathLength="1" d="M80 85 L228 130 L376 175 L524 220"
+          fill="none" stroke="#5fd3c0" stroke-width="7" stroke-linecap="round"/>
+        <path class="a" data-at="3.2" data-fx="fade" d="M524 220 L672 265 L820 310" fill="none"
+          stroke="#5fd3c0" stroke-width="6" stroke-dasharray="4 16" stroke-linecap="round"/>
+        <g font-size="40" font-weight="800" text-anchor="middle" class="num">
+          <g fill="#6ea8ff">
+            <text class="a" data-at="1.3" data-fx="pop" x="80" y="585">65</text>
+            <text class="a" data-at="1.7" data-fx="pop" x="228" y="540">66</text>
+            <text class="a" data-at="2.1" data-fx="pop" x="376" y="495">67</text>
+            <text class="a" data-at="2.5" data-fx="pop" x="524" y="455" fill="#ffffff" font-size="54">68</text>
+            <text class="a" data-at="3.0" data-fx="pop" x="672" y="405" opacity=".6">69</text>
+          </g>
+          <g fill="#5fd3c0">
+            <text class="a" data-at="1.7" data-fx="pop" x="80" y="62">75</text>
+            <text class="a" data-at="2.1" data-fx="pop" x="228" y="107">74</text>
+            <text class="a" data-at="2.5" data-fx="pop" x="376" y="152">73</text>
+            <text class="a" data-at="2.9" data-fx="pop" x="524" y="190" fill="#ffffff" font-size="54">72</text>
+            <text class="a" data-at="3.4" data-fx="pop" x="672" y="242" opacity=".6">71</text>
+          </g>
+        </g>
+        <circle class="a" data-at="3.8" data-fx="pop" cx="820" cy="310" r="18" fill="#f3dfa8"/>
+        <circle class="a pulse" data-at="3.8" data-fx="fade" cx="820" cy="310" r="40" fill="none"
+          stroke="#f3dfa8" stroke-width="3"/>
+        <text class="a" data-at="4.0" data-fx="pop" x="828" y="262" font-size="48" font-weight="800"
+          fill="#f3dfa8" text-anchor="middle">70세</text>
+      </svg>
+      <div style="display:flex;gap:44px;justify-content:center;font-size:32px;font-weight:700;margin-top:6px">
+        <span style="color:#6ea8ff">● 도시철도</span><span style="color:#5fd3c0">● 시내버스</span>
+        <span class="small" style="font-size:28px">점선: 당초 계획</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 2026년 현재 -->
+  <section class="scene" data-start="20" data-end="27">
+    <div class="eyebrow a" data-at=".2" data-fx="up">03 · 지금은</div>
+    <div style="height:24px"></div>
+    <div class="h2 a" data-at=".4" data-fx="blur">2026년 기준</div>
+    <div style="height:50px"></div>
+    <div class="glass a" data-at=".8" data-fx="left" style="padding:50px 60px;display:flex;align-items:center;gap:50px">
+      <div class="num" style="font-size:200px;font-weight:800;line-height:1;color:#6ea8ff;letter-spacing:-0.05em">
+        <span class="count" data-at="1.0" data-dur="1.2" data-from="60" data-to="68">68</span></div>
+      <div><div style="font-size:52px;font-weight:800">세 이상</div>
+        <div class="lead" style="font-size:40px;margin-top:10px">도시철도 · 광역철도<br>무료</div></div>
+    </div>
+    <div style="height:36px"></div>
+    <div class="glass a" data-at="1.8" data-fx="left" style="padding:50px 60px;display:flex;align-items:center;gap:50px">
+      <div class="num" style="font-size:200px;font-weight:800;line-height:1;letter-spacing:-0.05em">
+        <span class="goldtxt count" data-at="2.0" data-dur="1.2" data-from="80" data-to="72">72</span></div>
+      <div><div style="font-size:52px;font-weight:800">세 이상</div>
+        <div class="lead" style="font-size:40px;margin-top:10px">시내버스까지<br>모두 무료</div></div>
+    </div>
+    <div style="height:30px"></div>
+    <div class="small a" data-at="3.0" data-fx="up">2026년 1월부터 적용 · 대구 주민등록 어르신, 통합무임교통카드 사용</div>
+  </section>
+
+  <!-- 5. 성과 -->
+  <section class="scene" data-start="27" data-end="34">
+    <div class="eyebrow a" data-at=".2" data-fx="up">04 · 성과</div>
+    <div style="height:24px"></div>
+    <div class="h2 a" data-at=".4" data-fx="blur">100원 쓰면 <span class="goldtxt">153원</span> 효과</div>
+    <div style="height:44px"></div>
+    <div style="display:flex;gap:30px">
+      <div class="glass a" data-at=".8" data-fx="up" style="flex:1;padding:44px 40px">
+        <div class="small">비용 대비 편익(B/C)</div>
+        <div class="num goldtxt" style="font-size:150px;font-weight:800;line-height:1.05;letter-spacing:-0.05em">
+          <span class="count" data-at="1.0" data-dur="1.4" data-from="0" data-to="1.53" data-dec="2">1.53</span></div>
+      </div>
+      <div class="glass a" data-at="1.1" data-fx="up" style="flex:1;padding:44px 40px;display:flex;flex-direction:column;align-items:center">
+        <div class="small" style="align-self:flex-start">이용자 만족</div>
+        <svg viewBox="0 0 200 200" width="190" height="190" style="margin-top:6px">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="16"/>
+          <circle class="ring" data-at="1.3" data-dur="1.6" data-to=".985" cx="100" cy="100" r="80" fill="none"
+            stroke="#5fd3c0" stroke-width="16" stroke-linecap="round" pathLength="1"
+            transform="rotate(-90 100 100)"/>
+          <text x="100" y="116" text-anchor="middle" font-size="46" font-weight="800" fill="#f5f1e8" class="num">
+            <tspan class="count" data-at="1.3" data-dur="1.6" data-from="0" data-to="98.5" data-dec="1">98.5</tspan>%</text>
+        </svg>
+      </div>
+    </div>
+    <div style="height:30px"></div>
+    <div class="glass a" data-at="1.6" data-fx="up" style="padding:44px 50px">
+      <div class="small">어르신 시내버스 이용률</div>
+      <div style="height:24px"></div>
+      <div style="display:flex;align-items:center;gap:24px">
+        <span style="width:120px;font-size:32px;font-weight:700;color:var(--muted)">2023</span>
+        <div style="flex:1;height:38px;border-radius:20px;background:rgba(255,255,255,.07)">
+          <div class="bar" data-at="1.9" data-dur="1.0" data-to="0.5497" style="height:100%;border-radius:20px;background:rgba(245,241,232,.4)"></div></div>
+        <span class="num" style="width:150px;text-align:right;font-size:40px;font-weight:800">9.67%</span>
+      </div>
+      <div style="height:20px"></div>
+      <div style="display:flex;align-items:center;gap:24px">
+        <span style="width:120px;font-size:32px;font-weight:700;color:var(--gold2)">2025</span>
+        <div style="flex:1;height:38px;border-radius:20px;background:rgba(255,255,255,.07)">
+          <div class="bar" data-at="2.3" data-dur="1.2" data-to="1" style="height:100%;border-radius:20px;background:linear-gradient(90deg,#d8b46a,#f3dfa8)"></div></div>
+        <span class="num goldtxt" style="width:150px;text-align:right;font-size:40px;font-weight:800">17.59%</span>
+      </div>
+    </div>
+    <div style="height:26px"></div>
+    <div class="small a" data-at="3.0" data-fx="up">자료: 대구정책연구원 분석(2026. 6. 보도), 2023. 7.~2025. 12.</div>
+  </section>
+
+  <!-- 6. 과제 -->
+  <section class="scene" data-start="34" data-end="40">
+    <div class="eyebrow a" data-at=".2" data-fx="up" style="color:var(--rose)">05 · 과제</div>
+    <div style="height:24px"></div>
+    <div class="h2 a" data-at=".4" data-fx="blur">재정 부담</div>
+    <div style="height:60px"></div>
+    <div class="glass a" data-at=".8" data-fx="scale" style="padding:70px 60px;text-align:center">
+      <div class="small" style="font-size:36px">최근 5년 도시철도 무임 손실</div>
+      <div style="height:20px"></div>
+      <div class="num" style="font-size:190px;font-weight:800;line-height:1;letter-spacing:-0.05em;color:#ffb3a6">
+        약 <span class="count" data-at="1.1" data-dur="1.6" data-from="0" data-to="2600" data-sep="1">2,600</span><span style="font-size:110px">억</span></div>
+      <div style="height:40px"></div>
+      <div class="pill a" data-at="2.2" data-fx="scale" style="background:rgba(255,138,122,.12);border-color:rgba(255,138,122,.45);color:#ffd2ca">연평균 500억 원 이상</div>
+    </div>
+    <div style="height:30px"></div>
+    <div class="small a" data-at="2.8" data-fx="up">자료: 대구MBC 보도</div>
+  </section>
+
+  <!-- 7. 향후 방향 -->
+  <section class="scene" data-start="40" data-end="49">
+    <div class="eyebrow a" data-at=".2" data-fx="up">06 · 향후 방향</div>
+    <div style="height:24px"></div>
+    <div class="h2 a" data-at=".4" data-fx="blur">무엇이 바뀌나</div>
+    <div style="height:50px"></div>
+    <div style="position:relative;padding-left:70px">
+      <div class="vline" data-at=".8" data-dur="2.4" style="position:absolute;left:20px;top:20px;width:4px;height:0;
+        background:linear-gradient(#d8b46a,rgba(216,180,106,.15));border-radius:4px"></div>
+      <div class="a" data-at="1.0" data-fx="left" style="position:relative;margin-bottom:46px">
+        <i style="position:absolute;left:-62px;top:14px;width:28px;height:28px;border-radius:50%;background:#d8b46a;box-shadow:0 0 24px #d8b46a"></i>
+        <div class="eyebrow" style="letter-spacing:.05em">2026. 5.</div>
+        <div style="font-size:50px;font-weight:800;margin-top:8px">도시철도 65세 환원 공약</div>
+        <div class="small">시장 선거 공약</div>
+      </div>
+      <div class="a" data-at="2.0" data-fx="left" style="position:relative;margin-bottom:46px">
+        <i style="position:absolute;left:-62px;top:14px;width:28px;height:28px;border-radius:50%;background:#6ea8ff;box-shadow:0 0 24px #6ea8ff"></i>
+        <div class="eyebrow" style="letter-spacing:.05em;color:#6ea8ff">2027. 7.</div>
+        <div style="font-size:50px;font-weight:800;margin-top:8px">도시철도 65세 환원 검토</div>
+        <div class="small">인수위 관련 보도(2026. 6.)</div>
+      </div>
+      <div class="a" data-at="3.0" data-fx="left" style="position:relative">
+        <i style="position:absolute;left:-62px;top:14px;width:28px;height:28px;border-radius:50%;background:#5fd3c0;box-shadow:0 0 24px #5fd3c0"></i>
+        <div class="eyebrow" style="letter-spacing:.05em;color:#5fd3c0">2028. 1.</div>
+        <div style="font-size:50px;font-weight:800;margin-top:8px">시내버스 70세 이상 무임</div>
+        <div class="small">기존 계획</div>
+      </div>
+    </div>
+    <div style="height:56px"></div>
+    <div class="pill a" data-at="4.2" data-fx="scale">조례 개정 전 · 아직 확정 아님</div>
+  </section>
+
+  <!-- 8. 마무리 -->
+  <section class="scene" data-start="49" data-end="55">
+    <div style="height:120px"></div>
+    <div class="lead a" data-at=".3" data-fx="up" style="text-align:center">정확한 기준은</div>
+    <div style="height:24px"></div>
+    <div class="h1 a goldtxt" data-at=".6" data-fx="blur" style="text-align:center;font-size:96px">대구시 · 대구교통공사</div>
+    <div style="height:24px"></div>
+    <div class="lead a" data-at="1.0" data-fx="up" style="text-align:center">공식 안내로 확인하세요</div>
+    <div style="height:70px"></div>
+    <div class="rule a" data-at="1.4" data-fx="grow" data-w="920"></div>
+    <div style="height:40px"></div>
+    <div class="small a" data-at="1.7" data-fx="up" style="text-align:center">
+      근거 「대구광역시 어르신 무임교통 지원에 관한 조례」<br>「노인복지법」 제26조 · 2026. 10. 기준</div>
+  </section>
+
+  <!-- 자막 -->
+  <div class="cap" data-start="0" data-end="5">대구 어르신, 도시철도 무료는 몇 세부터일까요?</div>
+  <div class="cap" data-start="5" data-end="11">대구시는 2023년 7월, 광역자치단체 최초로 75세 이상 시내버스 무임을 시작했습니다.</div>
+  <div class="cap" data-start="11" data-end="20">도시철도는 65세에서 매년 한 살씩 올리고, 버스는 75세에서 한 살씩 낮춰 2028년 70세로 맞추는 구조입니다.</div>
+  <div class="cap" data-start="20" data-end="27">2026년에는 68세부터 도시철도가, 72세부터는 시내버스까지 무료입니다.</div>
+  <div class="cap" data-start="27" data-end="34">대구정책연구원 분석 결과 비용 대비 편익은 1.53, 이용자 만족도는 98.5%였습니다.</div>
+  <div class="cap" data-start="34" data-end="40">다만 도시철도 무임 손실은 최근 5년간 약 2,600억 원으로, 재정 부담이 과제입니다.</div>
+  <div class="cap" data-start="40" data-end="49">도시철도 65세 환원은 2027년 7월 시행이 검토되고 있지만, 조례 개정 전으로 아직 확정되지 않았습니다.</div>
+  <div class="cap" data-start="49" data-end="55">정확한 기준은 대구시와 대구교통공사의 공식 안내로 확인하세요.</div>
+</div>
+
+<script>
+const TOTAL = 55;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const outCubic = p => 1 - Math.pow(1 - p, 3);
+const outBack = p => { const c = 1.6; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const inOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+
+// 하단 도시·모노레일 구성 (고정 시드)
+(function buildCity() {
+  let s = 42; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const ns = "http://www.w3.org/2000/svg";
+  const mk = (tag, attrs, parent) => { const e = document.createElementNS(ns, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  for (const [id, base, maxH] of [["farCity", 230, 190], ["nearCity", 260, 120]]) {
+    const g = document.getElementById(id);
+    for (let rep = 0; rep < 2; rep++) {
+      let x = rep * 1080;
+      while (x < (rep + 1) * 1080) {
+        const w = 40 + rnd() * 80, h = 40 + rnd() * maxH;
+        mk("rect", { x, y: base - h, width: w, height: h + 200 }, g);
+        for (let wy = base - h + 14; wy < base - 10; wy += 22)
+          for (let wx = x + 8; wx < x + w - 10; wx += 16)
+            if (rnd() < .22) mk("rect", { x: wx, y: wy, width: 6, height: 9, fill: "#f3dfa8", opacity: .55 }, g);
+        x += w + 4 + rnd() * 10;
+      }
+    }
+  }
+  const p = document.getElementById("pillars");
+  for (let x = 30; x < 2160; x += 180) { mk("rect", { x, y: 224, width: 22, height: 140 }, p);
+    mk("rect", { x: x - 18, y: 222, width: 58, height: 10, rx: 4 }, p); }
+  const w = document.getElementById("windows");
+  for (let x = 24; x < 500; x += 44) mk("rect", { x, y: 170, width: 30, height: 18, rx: 6 }, w);
+})();
+
+const scenes = [...document.querySelectorAll(".scene")];
+const caps = [...document.querySelectorAll(".cap")];
+
+function sceneAlpha(t, a, b) {
+  const inP = outCubic(clamp((t - a) / .6)), outP = clamp((t - (b - .45)) / .45);
+  return { a: inP * (1 - outP), out: outP };
+}
+
+function fx(el, p, kind) {
+  const e = outCubic(p);
+  switch (kind) {
+    case "up": el.style.transform = `translateY(${(1 - e) * 50}px)`; break;
+    case "left": el.style.transform = `translateX(${(1 - e) * -70}px)`; break;
+    case "scale": el.style.transform = `scale(${.86 + .14 * outBack(p)})`; break;
+    case "pop": el.style.transformBox = "fill-box"; el.style.transformOrigin = "center";
+      el.style.transform = `scale(${p === 0 ? .4 : .4 + .6 * outBack(p)})`; break;
+    case "blur": el.style.transform = `translateY(${(1 - e) * 24}px)`; el.style.filter = `blur(${(1 - e) * 18}px)`; break;
+    case "grow": el.style.width = `${e * Number(el.dataset.w)}px`; break;
+  }
+  el.style.opacity = kind === "grow" ? (p > 0 ? 1 : 0) : e;
+}
+
+function fmt(v, el) {
+  const dec = Number(el.dataset.dec || 0);
+  const s = v.toFixed(dec);
+  return el.dataset.sep ? Number(s).toLocaleString("ko-KR") : s;
+}
+
+window.renderAt = function (t) {
+  document.querySelector("#progress b").style.width = `${(t / TOTAL) * 100}%`;
+  // 배경 움직임
+  document.getElementById("b1").style.transform = `translate(${Math.sin(t * .21) * 80}px, ${Math.cos(t * .17) * 60}px)`;
+  document.getElementById("b2").style.transform = `translate(${Math.cos(t * .19) * 90}px, ${Math.sin(t * .23) * 70}px)`;
+  document.getElementById("b3").style.transform = `translate(${Math.sin(t * .13) * 70}px, ${Math.cos(t * .29) * 50}px)`;
+  document.getElementById("farCity").setAttribute("transform", `translate(${-((t * 14) % 1080)} 0)`);
+  document.getElementById("nearCity").setAttribute("transform", `translate(${-((t * 34) % 1080)} 0)`);
+  document.getElementById("pillars").setAttribute("transform", `translate(${-((t * 80) % 180)} 0)`);
+  const cycle = 9, tp = (t % cycle) / cycle;
+  document.getElementById("train").setAttribute("transform", `translate(${-560 + inOut(tp) * 1700} 0)`);
+
+  for (const sc of scenes) {
+    const a = Number(sc.dataset.start), b = Number(sc.dataset.end);
+    const { a: alpha, out } = sceneAlpha(t, a, b);
+    sc.style.opacity = alpha;
+    sc.style.transform = `translateY(${-out * 40}px) scale(${1 + out * .02})`;
+    sc.style.filter = out > 0 ? `blur(${out * 10}px)` : "none";
+    sc.style.visibility = alpha > 0.001 ? "visible" : "hidden";
+    if (alpha <= 0.001) continue;
+    const lt = t - a;
+    sc.querySelectorAll(".a").forEach(el => fx(el, clamp((lt - Number(el.dataset.at)) / Number(el.dataset.dur || .8)), el.dataset.fx));
+    sc.querySelectorAll(".draw").forEach(el => {
+      const p = inOut(clamp((lt - Number(el.dataset.at)) / Number(el.dataset.dur)));
+      el.style.strokeDasharray = "1"; el.style.strokeDashoffset = String(1 - p); el.style.opacity = p > 0 ? 1 : 0;
+    });
+    sc.querySelectorAll(".count").forEach(el => {
+      const p = outCubic(clamp((lt - Number(el.dataset.at)) / Number(el.dataset.dur)));
+      const from = Number(el.dataset.from), to = Number(el.dataset.to);
+      el.textContent = fmt(from + (to - from) * p, el);
+    });
+    sc.querySelectorAll(".ring").forEach(el => {
+      const p = outCubic(clamp((lt - Number(el.dataset.at)) / Number(el.dataset.dur)));
+      el.style.strokeDasharray = "1"; el.style.strokeDashoffset = String(1 - p * Number(el.dataset.to));
+    });
+    sc.querySelectorAll(".bar").forEach(el => {
+      const p = outCubic(clamp((lt - Number(el.dataset.at)) / Number(el.dataset.dur)));
+      el.style.width = `${p * Number(el.dataset.to) * 100}%`;
+    });
+    sc.querySelectorAll(".vline").forEach(el => {
+      const p = inOut(clamp((lt - Number(el.dataset.at)) / Number(el.dataset.dur)));
+      el.style.height = `${p * 470}px`;
+    });
+    sc.querySelectorAll(".pulse").forEach(el => {
+      const k = ((lt - 3.8) % 1.6) / 1.6;
+      if (lt > 3.8) { el.style.transformBox = "fill-box"; el.style.transformOrigin = "center";
+        el.style.transform = `scale(${.6 + k * .9})`; el.style.opacity = 1 - k; }
+    });
+  }
+  for (const c of caps) {
+    const a = Number(c.dataset.start), b = Number(c.dataset.end);
+    const inP = outCubic(clamp((t - a - .3) / .5)), outP = clamp((t - (b - .35)) / .35);
+    c.style.opacity = inP * (1 - outP);
+    c.style.transform = `translateY(${(1 - inP) * 20}px)`;
+  }
+};
+window.renderAt(0);
+</script>
+</body>
+</html>
